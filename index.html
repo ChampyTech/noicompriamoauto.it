@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoiCompriamoAuto.it - Speciale Enrico Papi</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ncaNavy: '#05192D',
+                        ncaDarkBlue: '#002D62',
+                        ncaBlue: '#00A3E0',
+                        ncaOrange: '#FF9E1B',
+                        ncaYellow: '#FFD166',
+                        ncaAccent: '#00F0FF'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Impact', 'Arial Black', 'sans-serif']
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 2s infinite',
+                        'pulse-fast': 'pulse 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                        'spin-slow': 'spin 12s linear infinite',
+                        'laser-beam': 'laser 2s linear infinite alternate'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-12px)' }
+                        },
+                        laser: {
+                            '0%': { opacity: '0.3', transform: 'rotate(0deg) scale(1)' },
+                            '100%': { opacity: '0.8', transform: 'rotate(180deg) scale(1.2)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* Custom Styles & Visuals */
+        body {
+            background-color: #030D18;
+            color: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(5, 25, 45, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 163, 224, 0.25);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 158, 27, 0.6);
+            box-shadow: 0 0 25px rgba(255, 158, 27, 0.25);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 15px rgba(0, 163, 224, 0.8), 0 0 30px rgba(255, 158, 27, 0.6);
+        }
+
+        .text-glow-orange {
+            text-shadow: 0 0 20px rgba(255, 158, 27, 0.9);
+        }
+
+        /* Animated Equalizer Bars for Loader */
+        .eq-bar {
+            animation: eqHeight 0.5s ease-in-out infinite alternate;
+        }
+        @keyframes eqHeight {
+            0% { height: 15%; }
+            100% { height: 100%; }
+        }
+
+        /* Floating Speech Bubble */
+        .speech-bubble {
+            position: relative;
+            background: #FF9E1B;
+            border-radius: .5em;
+            color: #000;
+            font-weight: 800;
+        }
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 12px solid transparent;
+            border-top-color: #FF9E1B;
+            border-bottom: 0;
+            margin-left: -12px;
+            margin-bottom: -12px;
+        }
+
+        /* Laser Disco Background for Easter Egg */
+        .laser-bg {
+            background: radial-gradient(circle, rgba(255,158,27,0.3) 0%, rgba(0,163,224,0.2) 50%, rgba(5,25,45,0.95) 100%);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030D18;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #00A3E0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF9E1B;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-ncaOrange selection:text-black">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-gradient-to-r from-ncaOrange via-yellow-400 to-ncaOrange text-black font-extrabold text-xs md:text-sm py-2 px-4 text-center tracking-wide shadow-lg flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-bolt animate-bounce"></i>
+        <span>Valutazione auto gratuita con Enrico Papi in soli 60 secondi!</span>
+        <i class="fa-solid fa-bolt animate-bounce"></i>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-40 glass-panel border-b border-ncaBlue/30 px-4 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            
+            <!-- Logo with EASTER EGG CLICK EVENT -->
+            <button onclick="triggerPapiUltraMode()" class="flex items-center space-x-2 sm:space-x-3 group text-left focus:outline-none min-w-0 shrink" title="Clicca per la sorpresa Papi!">
+                <div class="bg-gradient-to-br from-ncaBlue to-blue-700 text-white p-2 sm:p-2.5 rounded-xl shadow-lg transform group-hover:scale-105 transition duration-300 shrink-0">
+                    <i class="fa-solid fa-car-side text-lg sm:text-2xl"></i>
+                </div>
+                <div class="truncate">
+                    <span class="text-lg sm:text-2xl font-black tracking-tight text-white italic truncate block">noicompriamoauto<span class="text-ncaBlue">.it</span></span>
+                    <span class="hidden sm:block text-[10px] text-ncaOrange font-bold tracking-widest uppercase -mt-1 group-hover:underline">Edizione Enrico Papi 🌟</span>
+                </div>
+            </button>
+
+            <!-- Nav Links -->
+            <div class="hidden lg:flex items-center space-x-8 text-sm font-semibold">
+                <a href="#calcolatore" class="hover:text-ncaOrange transition duration-200">Valuta ora</a>
+                <a href="#perche-noi" class="hover:text-ncaOrange transition duration-200">Perché noi</a>
+                <a href="#filiali" class="hover:text-ncaOrange transition duration-200">Trova filiale</a>
+            </div>
+
+            <!-- CTA Top Button -->
+            <a href="#calcolatore" class="bg-gradient-to-r from-ncaOrange to-yellow-500 hover:from-yellow-500 hover:to-ncaOrange text-black font-black px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm shadow-lg hover:shadow-ncaOrange/50 transform hover:-translate-y-0.5 transition flex items-center space-x-1.5 sm:space-x-2 shrink-0 ml-2">
+                <i class="fa-solid fa-calculator"></i>
+                <span>Calcola subito</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow">
+
+        <!-- Hero Section -->
+        <section class="relative overflow-hidden pt-6 md:pt-8 pb-12 md:pb-16 px-4 md:px-8">
+            <!-- Background Glow Effects -->
+            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-ncaBlue/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-1/3 right-10 w-80 h-80 bg-ncaOrange/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+
+                <!-- Left Column: Copy & Title -->
+                <div class="lg:col-span-7 space-y-5 md:space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center space-x-2 bg-ncaBlue/20 border border-ncaBlue/40 text-ncaBlue px-3.5 py-1.5 rounded-full text-xs md:text-sm font-bold tracking-wide animate-pulse">
+                        <i class="fa-solid fa-microphone-lines"></i>
+                        <span>Il massimo valore per il tuo usato!</span>
+                    </div>
+
+                    <h1 class="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-tight sm:leading-none text-white">
+                        Quanto vale la tua auto? <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-ncaOrange via-yellow-300 to-ncaBlue text-glow">
+                            Scoprilo ora!
+                        </span>
+                    </h1>
+
+                    <p class="text-gray-300 text-sm sm:text-base md:text-xl font-medium max-w-2xl mx-auto lg:mx-0">
+                        Con Enrico Papi e <strong class="text-white">NoiCompriamoAuto.it</strong> scopri il valore reale della tua auto usata online in meno di 60 secondi. Zero burocrazia e pagamento immediato!
+                    </p>
+
+                    <!-- Hero Call to Action Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
+                        <a href="#calcolatore" class="w-full sm:w-auto bg-gradient-to-r from-ncaOrange to-yellow-400 hover:from-yellow-400 hover:to-ncaOrange text-black font-black text-base sm:text-lg px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl shadow-xl hover:shadow-ncaOrange/50 transform hover:scale-105 transition flex items-center justify-center space-x-2.5">
+                            <i class="fa-solid fa-car text-lg sm:text-xl"></i>
+                            <span>Valuta ora l'auto</span>
+                        </a>
+                        <button onclick="triggerPapiUltraMode()" class="w-full sm:w-auto glass-panel border-ncaBlue text-white hover:bg-ncaBlue/20 font-bold text-base sm:text-lg px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-ncaOrange"></i>
+                            <span>Effetto Papi! 🌟</span>
+                        </button>
+                    </div>
+
+                    <!-- Trust Stats -->
+                    <div class="grid grid-cols-3 gap-2 sm:gap-4 pt-6 border-t border-gray-800">
+                        <div>
+                            <div class="text-xl sm:text-2xl md:text-3xl font-black text-ncaOrange">24 Ore</div>
+                            <div class="text-[10px] sm:text-xs text-gray-400 font-medium">Pagamento immediato</div>
+                        </div>
+                        <div>
+                            <div class="text-xl sm:text-2xl md:text-3xl font-black text-ncaBlue">100%</div>
+                            <div class="text-[10px] sm:text-xs text-gray-400 font-medium">Gratuito e senza impegno</div>
+                        </div>
+                        <div>
+                            <div class="text-xl sm:text-2xl md:text-3xl font-black text-yellow-400">4.8 / 5 ⭐</div>
+                            <div class="text-[10px] sm:text-xs text-gray-400 font-medium">+3 Milioni di clienti</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive Enrico Papi Avatar / Hero Display -->
+                <div class="lg:col-span-5 flex justify-center relative">
+                    <!-- Papi Interactive Frame -->
+                    <div class="relative w-full max-w-md bg-gradient-to-b from-ncaBlue/40 to-ncaDarkBlue/80 p-5 sm:p-6 rounded-3xl border-2 border-ncaBlue/40 shadow-2xl overflow-hidden group">
+                        
+                        <div class="relative z-10 flex flex-col items-center">
+                            <!-- Floating Speech Bubble -->
+                            <div id="hero-speech" class="speech-bubble px-4 py-2 mb-4 text-center text-xs sm:text-sm font-black shadow-lg transition-all duration-300">
+                                "Scommetto che la tua auto vale più di quello che credi! Vieni da noi!"
+                            </div>
+
+                            <div class="relative w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72 my-2 cursor-pointer" onclick="papiAvatarClick()">
+                                <div class="w-full h-full rounded-full bg-gradient-to-tr from-ncaOrange via-yellow-400 to-ncaBlue p-1 shadow-2xl animate-pulse-fast">
+                                    <div class="w-full h-full rounded-full bg-ncaNavy overflow-hidden relative flex items-center justify-center">
+                                        <!-- SVG Character Representation of Enrico Papi -->
+                                        <svg viewBox="0 0 200 200" class="w-full h-full object-cover">
+                                            <circle cx="100" cy="100" r="90" fill="#002D62" />
+                                            <path d="M 40 90 Q 50 30 100 30 Q 150 30 160 90 Q 150 50 100 50 Q 50 50 40 90 Z" fill="#2C1D11" />
+                                            <ellipse cx="100" cy="110" rx="45" ry="50" fill="#FFC898" />
+                                            <ellipse cx="85" cy="105" rx="6" ry="8" fill="#FFFFFF" />
+                                            <circle cx="85" cy="105" r="3" fill="#1A202C" />
+                                            <ellipse cx="115" cy="105" rx="6" ry="8" fill="#FFFFFF" />
+                                            <circle cx="115" cy="105" r="3" fill="#1A202C" />
+                                            <path d="M 75 92 Q 85 85 95 92" stroke="#2C1D11" stroke-width="4" fill="none" />
+                                            <path d="M 105 92 Q 115 85 125 92" stroke="#2C1D11" stroke-width="4" fill="none" />
+                                            <rect x="72" y="96" width="24" height="18" rx="4" stroke="#000" stroke-width="3" fill="none" />
+                                            <rect x="104" y="96" width="24" height="18" rx="4" stroke="#000" stroke-width="3" fill="none" />
+                                            <line x1="96" y1="104" x2="104" y2="104" stroke="#000" stroke-width="3" />
+                                            <path d="M 75 130 Q 100 155 125 130" fill="#880000" />
+                                            <path d="M 77 130 Q 100 140 123 130" fill="#FFFFFF" />
+                                            <rect x="130" y="125" width="12" height="40" rx="6" fill="#888" transform="rotate(-20 130 125)" />
+                                            <circle cx="128" cy="120" r="12" fill="#FF9E1B" />
+                                            <path d="M 50 160 Q 100 170 150 160 L 165 200 L 35 200 Z" fill="#00A3E0" />
+                                            <polygon points="100,160 105,185 100,195 95,185" fill="#FF9E1B" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="absolute bottom-2 right-2 bg-ncaOrange text-black font-black text-xs px-3 py-1.5 rounded-full shadow-lg border border-black/20 animate-bounce">
+                                    Cliccami! 🎤
+                                </div>
+                            </div>
+
+                            <div class="w-full mt-4 flex justify-center items-center bg-ncaNavy/80 p-3 rounded-xl border border-ncaBlue/30 text-center">
+                                <span class="text-xs font-bold text-gray-300">Stato Papi: <span class="text-ncaOrange uppercase font-black" id="papi-status">Carico a mille!</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: Calculator (Valutazione Auto Espresso) -->
+        <section id="calcolatore" class="py-16 px-4 md:px-8 bg-gradient-to-b from-ncaNavy to-[#030D18] relative">
+            <div class="max-w-4xl mx-auto">
+                
+                <div class="text-center mb-10">
+                    <span class="text-ncaOrange text-sm font-extrabold uppercase tracking-widest">Valutazione gratuita e immediata</span>
+                    <h2 class="text-3xl md:text-5xl font-black text-white mt-1 uppercase">
+                        Calcola con Enrico! 💶
+                    </h2>
+                    <p class="text-gray-400 text-sm md:text-base mt-2">
+                        Seleziona i dettagli del tuo veicolo per attivare la valutazione automatica
+                    </p>
+                </div>
+
+                <!-- Calculator Card -->
+                <div class="glass-panel p-6 md:p-10 rounded-3xl border-2 border-ncaBlue/30 shadow-2xl relative">
+                    
+                    <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-800">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-full bg-ncaOrange text-black font-black flex items-center justify-center text-sm">1</span>
+                            <span class="text-sm font-bold text-white">Dati veicolo</span>
+                        </div>
+                        <div class="h-0.5 flex-grow mx-4 bg-gray-800">
+                            <div id="progress-bar" class="h-full bg-ncaOrange transition-all duration-300" style="width: 50%;"></div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-full bg-gray-800 text-gray-400 font-black flex items-center justify-center text-sm" id="step2-badge">2</span>
+                            <span class="text-sm font-bold text-gray-400" id="step2-text">Risultato finale</span>
+                        </div>
+                    </div>
+
+                    <!-- Calculator Form -->
+                    <form id="valuation-form" onsubmit="event.preventDefault(); calculateValuation();" class="space-y-6">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            <!-- Brand Selector -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">Marca auto</label>
+                                <div class="relative">
+                                    <select id="car-brand" onchange="updateModels()" class="w-full bg-ncaNavy border border-ncaBlue/40 text-white rounded-xl p-3.5 pl-10 focus:outline-none focus:border-ncaOrange transition font-semibold appearance-none">
+                                        <option value="">-- Seleziona marca --</option>
+                                        <option value="Fiat">Fiat</option>
+                                        <option value="Audi">Audi</option>
+                                        <option value="Volkswagen">Volkswagen</option>
+                                        <option value="BMW">BMW</option>
+                                        <option value="Ford">Ford</option>
+                                        <option value="Renault">Renault</option>
+                                        <option value="Alfa Romeo">Alfa Romeo</option>
+                                        <option value="Toyota">Toyota</option>
+                                        <option value="Mercedes-Benz">Mercedes-Benz</option>
+                                        <option value="Peugeot">Peugeot</option>
+                                    </select>
+                                    <i class="fa-solid fa-car absolute left-3.5 top-1/2 -translate-y-1/2 text-ncaBlue"></i>
+                                    <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <!-- Model Selector -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">Modello</label>
+                                <div class="relative">
+                                    <select id="car-model" class="w-full bg-ncaNavy border border-ncaBlue/40 text-white rounded-xl p-3.5 pl-10 focus:outline-none focus:border-ncaOrange transition font-semibold appearance-none">
+                                        <option value="">-- Prima seleziona marca --</option>
+                                    </select>
+                                    <i class="fa-solid fa-list absolute left-3.5 top-1/2 -translate-y-1/2 text-ncaBlue"></i>
+                                    <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <!-- Year Selector -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">Anno immatricolazione</label>
+                                <div class="relative">
+                                    <select id="car-year" class="w-full bg-ncaNavy border border-ncaBlue/40 text-white rounded-xl p-3.5 pl-10 focus:outline-none focus:border-ncaOrange transition font-semibold appearance-none">
+                                        <option value="2025">2025 (Quasi nuova!)</option>
+                                        <option value="2023">2023</option>
+                                        <option value="2021" selected>2021</option>
+                                        <option value="2019">2019</option>
+                                        <option value="2016">2016</option>
+                                        <option value="2013">2013</option>
+                                        <option value="2009">2009</option>
+                                        <option value="2005">2005 (Vintage!)</option>
+                                    </select>
+                                    <i class="fa-solid fa-calendar-days absolute left-3.5 top-1/2 -translate-y-1/2 text-ncaBlue"></i>
+                                    <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <!-- Mileage Slider -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-gray-300">Chilometraggio (km)</label>
+                                    <span id="km-display" class="text-ncaOrange font-black text-sm">85.000 km</span>
+                                </div>
+                                <input type="range" id="car-km" min="5000" max="300000" step="5000" value="85000" oninput="updateKmDisplay(this.value)" class="w-full h-3 bg-ncaNavy rounded-lg appearance-none cursor-pointer accent-ncaOrange border border-ncaBlue/30">
+                                <div class="flex justify-between text-[10px] text-gray-500 mt-1 font-semibold">
+                                    <span>5.000 km</span>
+                                    <span>150.000 km</span>
+                                    <span>300.000+ km</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Fuel & Condition -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">Alimentazione</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button type="button" onclick="setFuel('Benzina', this)" class="fuel-btn bg-ncaBlue text-white font-bold py-2 rounded-xl text-xs border border-ncaBlue transition">Benzina</button>
+                                    <button type="button" onclick="setFuel('Diesel', this)" class="fuel-btn bg-ncaNavy text-gray-300 font-bold py-2 rounded-xl text-xs border border-gray-700 hover:border-ncaBlue transition">Diesel</button>
+                                    <button type="button" onclick="setFuel('Ibrida/Elettrica', this)" class="fuel-btn bg-ncaNavy text-gray-300 font-bold py-2 rounded-xl text-xs border border-gray-700 hover:border-ncaBlue transition">Ibrida/EV</button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">Stato veicolo</label>
+                                <select id="car-condition" class="w-full bg-ncaNavy border border-ncaBlue/40 text-white rounded-xl p-2.5 text-xs font-semibold focus:outline-none">
+                                    <option value="ottimo">Ottimo stato (come nuova)</option>
+                                    <option value="buono" selected>Buono stato (normali segni d'uso)</option>
+                                    <option value="discreto">Da revisionare / graffi ed ammaccature</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-4 text-center">
+                            <button type="submit" class="w-full md:w-auto bg-gradient-to-r from-ncaOrange via-yellow-400 to-ncaOrange text-black font-black text-xl px-12 py-5 rounded-2xl shadow-xl hover:shadow-ncaOrange/60 transform hover:scale-105 active:scale-95 transition flex items-center justify-center space-x-3 mx-auto">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                <span>Valuta ora la tua auto!</span>
+                            </button>
+                        </div>
+
+                    </form>
+
+                    <!-- Loading Overlay (Appears during calculation) -->
+                    <div id="loading-overlay" class="hidden absolute inset-0 bg-ncaNavy/95 rounded-3xl flex flex-col items-center justify-center p-6 text-center z-30">
+                        <div class="relative w-28 h-28 mb-4">
+                            <div class="w-full h-full border-4 border-ncaBlue border-t-ncaOrange rounded-full animate-spin"></div>
+                            <div class="absolute inset-0 flex items-center justify-center text-3xl">
+                                🎤
+                            </div>
+                        </div>
+
+                        <h3 class="text-2xl font-black text-white animate-pulse">Enrico sta calcolando...</h3>
+                        <p class="text-ncaOrange font-bold text-sm mt-1" id="loading-status">Elaborazione stima in corso...</p>
+
+                        <div class="flex items-end space-x-1.5 h-12 mt-6">
+                            <div class="w-2 bg-ncaBlue rounded-full eq-bar" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 bg-ncaOrange rounded-full eq-bar" style="animation-delay: 0.3s"></div>
+                            <div class="w-2 bg-yellow-400 rounded-full eq-bar" style="animation-delay: 0.2s"></div>
+                            <div class="w-2 bg-ncaBlue rounded-full eq-bar" style="animation-delay: 0.4s"></div>
+                            <div class="w-2 bg-ncaOrange rounded-full eq-bar" style="animation-delay: 0.15s"></div>
+                        </div>
+                    </div>
+
+                    <!-- Result Reveal Overlay -->
+                    <div id="result-box" class="hidden pt-6 border-t border-ncaBlue/30 text-center animate-fade-in">
+                        <div class="inline-block bg-ncaOrange/20 border border-ncaOrange text-ncaOrange text-xs font-black px-4 py-1.5 rounded-full mb-3 uppercase tracking-wider">
+                            🎉 Valutazione completata con successo!
+                        </div>
+
+                        <h3 class="text-gray-300 font-bold text-sm">Stima del valore della tua auto:</h3>
+                        
+                        <div class="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-ncaOrange via-yellow-300 to-white my-3 text-glow-orange" id="price-counter">
+                            € 0
+                        </div>
+
+                        <div class="inline-flex items-center space-x-2 bg-green-500/20 border border-green-500 text-green-400 px-4 py-2 rounded-xl text-sm font-bold mb-6">
+                            <i class="fa-solid fa-certificate text-lg"></i>
+                            <span id="papi-rating">100% Approvato da Papi - Super affare!</span>
+                        </div>
+
+                        <p class="text-gray-300 text-sm max-w-lg mx-auto mb-6">
+                            Prezzo garantito per la vendita immediata in una delle nostre filiali. Senza vincoli né costi nascosti!
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row justify-center gap-4">
+                            <a href="#filiali" class="bg-gradient-to-r from-ncaBlue to-blue-600 hover:from-blue-600 hover:to-ncaBlue text-white font-black px-8 py-3.5 rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-calendar-check"></i>
+                                <span>Prenota appuntamento in filiale</span>
+                            </a>
+                            <button onclick="resetCalculator()" class="bg-ncaNavy border border-gray-700 text-gray-300 hover:text-white font-bold px-6 py-3.5 rounded-xl transition">
+                                Valuta un'altra auto 🔄
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Why Sell to NoiCompriamoAuto.it -->
+        <section id="perche-noi" class="py-16 px-4 md:px-8 bg-gradient-to-b from-[#030D18] to-ncaNavy">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-12">
+                    <span class="text-ncaOrange text-xs font-black uppercase tracking-widest">I nostri vantaggi unici</span>
+                    <h2 class="text-3xl md:text-5xl font-black text-white mt-2 uppercase">
+                        Perché vendere a NoiCompriamoAuto.it?
+                    </h2>
+                    <p class="text-gray-400 text-sm md:text-base mt-1">
+                        Semplice, veloce e garantito dalla simpatia di Enrico Papi
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    <div class="glass-panel p-6 rounded-2xl text-center flex flex-col items-center hover:border-ncaBlue transition duration-300">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-ncaBlue to-blue-700 flex items-center justify-center text-2xl text-white mb-4 shadow-lg">
+                            <i class="fa-solid fa-calculator"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-white mb-2">Valutazione gratuita</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Ottieni la stima online e in filiale senza spendere un solo euro e senza alcun obbligo di vendita.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl text-center flex flex-col items-center hover:border-ncaOrange transition duration-300">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-ncaOrange to-yellow-500 flex items-center justify-center text-2xl text-black mb-4 shadow-lg">
+                            <i class="fa-solid fa-money-bill-transfer"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-white mb-2">Pagamento immediato</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Bonifico bancario tracciabile ed immediato direttamente sul tuo conto corrente subito dopo la firma.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl text-center flex flex-col items-center hover:border-ncaBlue transition duration-300">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-ncaBlue to-blue-700 flex items-center justify-center text-2xl text-white mb-4 shadow-lg">
+                            <i class="fa-solid fa-file-contract"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-white mb-2">Zero burocrazia</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Pensiamo a tutto noi! Passaggio di proprietà gestito interamente dal nostro team di esperti.
+                        </p>
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl text-center flex flex-col items-center hover:border-ncaOrange transition duration-300">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-ncaOrange to-yellow-500 flex items-center justify-center text-2xl text-black mb-4 shadow-lg">
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-white mb-2">Filiali in tutta Italia</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            Oltre 60 filiali sparse su tutto il territorio nazionale pronte ad accoglierti con il sorriso!
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: Appointment Booking Simulator (Prenota in Filiale) -->
+        <section id="filiali" class="py-16 px-4 md:px-8 bg-ncaNavy relative">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-10">
+                    <span class="text-ncaBlue text-xs font-black uppercase tracking-widest">Incontra il team in filiale</span>
+                    <h2 class="text-3xl md:text-5xl font-black text-white mt-2 uppercase">
+                        Prenota in filiale 📍
+                    </h2>
+                    <p class="text-gray-400 text-sm mt-1">
+                        Scegli la città più vicina e fissa il tuo appuntamento veloce
+                    </p>
+                </div>
+
+                <div class="glass-panel p-6 md:p-8 rounded-3xl border border-ncaBlue/30">
+                    <form onsubmit="event.preventDefault(); bookAppointment();" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">Città</label>
+                                <select id="branch-city" onchange="updateBranches()" class="w-full bg-ncaNavy border border-ncaBlue/40 text-white rounded-xl p-3 text-sm focus:outline-none">
+                                    <option value="Roma">Roma</option>
+                                    <option value="Milano">Milano</option>
+                                    <option value="Napoli">Napoli</option>
+                                    <option value="Torino">Torino</option>
+                                    <option value="Bologna">Bologna</option>
+                                    <option value="Firenze">Firenze</option>
+                                    <option value="Bari">Bari</option>
+                                    <option value="Palermo">Palermo</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">Filiale specifica</label>
+                                <select id="branch-location" class="w-full bg-ncaNavy border border-ncaBlue/40 text-white rounded-xl p-3 text-sm focus:outline-none">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">Data appuntamento</label>
+                                <input type="date" id="booking-date" class="w-full bg-ncaNavy border border-ncaBlue/40 text-white rounded-xl p-3 text-sm focus:outline-none">
+                            </div>
+
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">Nome e cognome</label>
+                                <input type="text" required id="user-name" placeholder="es. Mario Rossi" class="w-full bg-ncaNavy border border-ncaBlue/40 text-white rounded-xl p-3 text-sm focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-300 mb-1">Numero di telefono</label>
+                                <input type="tel" required id="user-phone" placeholder="es. 333 1234567" class="w-full bg-ncaNavy border border-ncaBlue/40 text-white rounded-xl p-3 text-sm focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="pt-4 text-center">
+                            <button type="submit" class="w-full md:w-auto bg-gradient-to-r from-ncaOrange to-yellow-400 text-black font-black text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-ncaOrange/50 transition">
+                                Conferma appuntamento con Papi! 🚗💨
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- EASTER EGG OVERLAY: MODALITÀ PAPI ULTRA-VALUTAZIONE -->
+    <div id="papi-ultra-overlay" class="fixed inset-0 bg-black/90 z-50 hidden flex flex-col items-center justify-center p-4 overflow-hidden laser-bg">
+        
+        <!-- Rotating Laser Graphic -->
+        <div class="absolute inset-0 border-8 border-ncaOrange/30 rounded-full animate-laser-beam pointer-events-none"></div>
+        <div class="absolute top-10 left-10 text-6xl animate-bounce">🚗</div>
+        <div class="absolute bottom-10 right-10 text-6xl animate-bounce" style="animation-delay: 0.5s;">💶</div>
+        <div class="absolute top-12 right-12 text-6xl animate-bounce" style="animation-delay: 0.2s;">🎤</div>
+
+        <div class="glass-panel bg-ncaNavy/90 border-4 border-ncaOrange p-8 rounded-3xl max-w-xl w-full text-center relative z-10 shadow-2xl animate-bounce-slow">
+            <button onclick="closePapiUltraMode()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl font-black">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="inline-block bg-ncaOrange text-black text-xs font-black px-4 py-1.5 rounded-full mb-3 uppercase tracking-widest animate-pulse">
+                🔥 Evento speciale sito clicked! 🔥
+            </div>
+
+            <h2 class="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-ncaOrange via-yellow-300 to-white text-glow uppercase">
+                Modalità Papi Ultra!
+            </h2>
+
+            <p class="text-gray-200 text-sm font-bold mt-2">
+                Hai attivato il bonus segreto cliccando il logo di <strong class="text-ncaBlue">NoiCompriamoAuto.it</strong>!
+            </p>
+
+            <div class="bg-black/60 border-2 border-ncaYellow rounded-2xl p-6 my-6 text-center space-y-2 relative overflow-hidden">
+                <div class="text-xs font-black text-gray-400">Bonus Ultra Valutazione attivato:</div>
+                <div class="text-4xl md:text-6xl font-black text-ncaOrange text-glow-orange animate-pulse">
+                    +5.000 €
+                </div>
+                <div class="text-xs text-yellow-300 font-bold">
+                    Aggiunti automaticamente al calcolo della tua auto!
+                </div>
+            </div>
+
+            <p class="text-xs text-gray-300 mb-6 italic">
+                "Vieni in filiale o valuta subito online per approfittare della valutazione top di Enrico Papi!"
+            </p>
+
+            <button onclick="closePapiUltraMode()" class="bg-gradient-to-r from-ncaOrange to-yellow-400 text-black font-black text-lg px-8 py-3.5 rounded-xl shadow-xl hover:scale-105 transition w-full">
+                Richiedi ora la super valutazione! ⚡
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Confirmation for Booking -->
+    <div id="booking-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel bg-ncaNavy p-8 rounded-3xl max-w-md w-full border-2 border-ncaOrange text-center relative animate-fade-in">
+            <button onclick="closeBookingModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="w-20 h-20 bg-ncaOrange text-black rounded-full flex items-center justify-center text-4xl mx-auto mb-4 font-black shadow-lg">
+                🎤
+            </div>
+
+            <h3 class="text-2xl font-black text-white">"TI ASPETTO IN FILIALE!"</h3>
+            <p class="text-ncaOrange font-bold text-sm mt-1">Appuntamento confermato con Enrico Papi!</p>
+
+            <div class="bg-black/40 p-4 rounded-2xl my-4 text-left space-y-2 text-xs text-gray-300 border border-gray-800">
+                <p><strong>Cliente:</strong> <span id="modal-name" class="text-white"></span></p>
+                <p><strong>Filiale:</strong> <span id="modal-branch" class="text-white"></span></p>
+                <p><strong>Data:</strong> <span id="modal-date" class="text-white"></span></p>
+                <p><strong>Voucher Papi:</strong> <span id="modal-voucher" class="text-ncaOrange font-mono font-black text-sm"></span></p>
+            </div>
+
+            <p class="text-[11px] text-gray-400 mb-6">
+                Mostra questo codice allo staff in filiale per ricevere una sorpresa speciale ed un caffè offertoti da Papi!
+            </p>
+
+            <button onclick="closeBookingModal()" class="w-full bg-ncaBlue hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition">
+                Ottimo, ho segnato tutto!
+            </button>
+        </div>
+    </div>
+
+    <!-- Sticky Bottom CTA Bar -->
+    <div class="sticky bottom-0 z-30 bg-gradient-to-r from-ncaNavy via-ncaDarkBlue to-ncaNavy border-t border-ncaBlue/40 py-3 px-4 flex items-center justify-between shadow-2xl">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-ncaOrange text-black font-black flex items-center justify-center text-lg shadow">
+                🎤
+            </div>
+            <div class="hidden sm:block">
+                <div class="text-xs font-black text-white">Vendi subito con Papi!</div>
+                <div class="text-[10px] text-ncaBlue font-semibold">Valutazione 100% gratuita online</div>
+            </div>
+        </div>
+
+        <a href="#calcolatore" class="bg-gradient-to-r from-ncaOrange to-yellow-400 text-black font-black text-xs sm:text-sm px-6 py-2.5 rounded-full shadow-lg hover:scale-105 transition flex items-center space-x-2">
+            <span>Valuta ora</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-black text-gray-500 text-xs py-8 px-4 border-t border-gray-900">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div class="text-center md:text-left">
+                <p class="text-gray-400 font-bold">NoiCompriamoAuto.it - Papi Edition © 2026</p>
+                <p class="text-[10px] text-gray-600 mt-1">Sito promozionale interattivo ed intrattenimento dedicato a Enrico Papi e NoiCompriamoAuto.it</p>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#calcolatore" class="hover:text-ncaBlue">Valutazione</a>
+                <a href="#perche-noi" class="hover:text-ncaBlue">Vantaggi</a>
+                <a href="#filiali" class="hover:text-ncaBlue">Filiali</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Engine -->
+    <script>
+        // Database of car models
+        const carData = {
+            "Fiat": ["Panda", "500", "500X", "Punto", "Tipo"],
+            "Audi": ["A1", "A3", "A4", "Q3", "Q5"],
+            "Volkswagen": ["Golf", "Polo", "T-Roc", "Tiguan"],
+            "BMW": ["Serie 1", "Serie 3", "X1", "X3"],
+            "Ford": ["Fiesta", "Focus", "Puma", "Kuga"],
+            "Renault": ["Clio", "Captur", "Megane"],
+            "Alfa Romeo": ["Giulietta", "Tonale", "Stelvio"],
+            "Toyota": ["Yaris", "Corolla", "C-HR"],
+            "Mercedes-Benz": ["Classe A", "Classe C", "GLA"],
+            "Peugeot": ["208", "308", "2008", "3008"]
+        };
+
+        // Branches database
+        const branchData = {
+            "Roma": ["Roma Aurelia - Via Aurelia 1020", "Roma Tiburtina - Via Tiburtina 770", "Roma EUR - Viale Europa 45"],
+            "Milano": ["Milano Certosa - Viale Certosa 110", "Milano Sesto - Viale Italia 220"],
+            "Napoli": ["Napoli Capodichino - Corso Secondigliano 40", "Napoli Fuorigrotta - Via Diocleziano 15"],
+            "Torino": ["Torino Corso Francia 310", "Torino Moncalieri - Corso Savona 88"],
+            "Bologna": ["Bologna Borgo Panigale - Via Triumvirato 12"],
+            "Firenze": ["Firenze Novoli - Via Baracca 150"],
+            "Bari": ["Bari Zona Industriale - Via Milano 4"],
+            "Palermo": ["Palermo Viale Regione Siciliana 2100"]
+        };
+
+        // Quotes for Enrico Papi
+        const papiQuotes = [
+            "\"Scommetto che la tua auto vale più di quello che credi! Vieni da noi!\"",
+            "\"Vieni da noi! Ti offro la valutazione più veloce d'Italia!\"",
+            "\"Chilometri? Anno? Non importa, noi compriamo tutto con stile!\"",
+            "\"Valutazione super! 100% Approvato da Papi!\"",
+            "\"Tre, due, uno... venduta! Soldi sul tuo conto in 24 ore!\""
+        ];
+
+        let papiUltraBonusActive = false;
+
+        // Easter Egg: Ultra Papi Mode Modal
+        function triggerPapiUltraMode() {
+            papiUltraBonusActive = true;
+            document.getElementById('papi-ultra-overlay').classList.remove('hidden');
+            triggerConfetti();
+        }
+
+        function closePapiUltraMode() {
+            document.getElementById('papi-ultra-overlay').classList.add('hidden');
+            const calcElem = document.getElementById('calcolatore');
+            if (calcElem) calcElem.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Show visual floating quote banner
+        function showVisualQuote(text) {
+            const bubble = document.getElementById('hero-speech');
+            if (bubble) {
+                bubble.innerText = text;
+                bubble.classList.add('scale-110');
+                setTimeout(() => bubble.classList.remove('scale-110'), 300);
+            }
+        }
+
+        // Trigger visual confetti effect
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 90,
+                    origin: { y: 0.6 },
+                    colors: ['#FF9E1B', '#00A3E0', '#FFD166']
+                });
+            }
+        }
+
+        // Dynamic Brand -> Model Population
+        function updateModels() {
+            const brandSelect = document.getElementById('car-brand');
+            const modelSelect = document.getElementById('car-model');
+            const selectedBrand = brandSelect.value;
+
+            modelSelect.innerHTML = '<option value="">-- Seleziona modello --</option>';
+
+            if (selectedBrand && carData[selectedBrand]) {
+                carData[selectedBrand].forEach(model => {
+                    const opt = document.createElement('option');
+                    opt.value = model;
+                    opt.textContent = model;
+                    modelSelect.appendChild(opt);
+                });
+            }
+        }
+
+        // Dynamic City -> Branch Population
+        function updateBranches() {
+            const citySelect = document.getElementById('branch-city');
+            const branchSelect = document.getElementById('branch-location');
+            const selectedCity = citySelect.value;
+
+            branchSelect.innerHTML = '';
+
+            if (selectedCity && branchData[selectedCity]) {
+                branchData[selectedCity].forEach(branch => {
+                    const opt = document.createElement('option');
+                    opt.value = branch;
+                    opt.textContent = branch;
+                    branchSelect.appendChild(opt);
+                });
+            }
+        }
+
+        // Mileage slider update
+        function updateKmDisplay(val) {
+            const display = document.getElementById('km-display');
+            display.innerText = parseInt(val).toLocaleString('it-IT') + ' km';
+        }
+
+        // Fuel button selector highlight
+        function setFuel(fuelType, btnElem) {
+            document.querySelectorAll('.fuel-btn').forEach(btn => {
+                btn.className = 'fuel-btn bg-ncaNavy text-gray-300 font-bold py-2 rounded-xl text-xs border border-gray-700 hover:border-ncaBlue transition';
+            });
+            btnElem.className = 'fuel-btn bg-ncaBlue text-white font-bold py-2 rounded-xl text-xs border border-ncaBlue transition';
+        }
+
+        // Calculate Car Valuation Engine
+        function calculateValuation() {
+            const brand = document.getElementById('car-brand').value;
+            const model = document.getElementById('car-model').value;
+            const year = parseInt(document.getElementById('car-year').value);
+            const km = parseInt(document.getElementById('car-km').value);
+
+            if (!brand || !model) {
+                alert("Per favore, seleziona sia la marca che il modello dell'auto!");
+                return;
+            }
+
+            // Show Loading Animation
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const loadingStatus = document.getElementById('loading-status');
+            loadingOverlay.classList.remove('hidden');
+
+            const statusMessages = [
+                "Analisi mercato auto usate in corso...",
+                "Calcolo algoritmo Enrico Papi...",
+                "Sintonizzazione massima offerta per " + brand + " " + model + "...",
+                "Quasi pronto!"
+            ];
+
+            let msgIdx = 0;
+            const interval = setInterval(() => {
+                if (msgIdx < statusMessages.length) {
+                    loadingStatus.innerText = statusMessages[msgIdx];
+                    msgIdx++;
+                }
+            }, 500);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                loadingOverlay.classList.add('hidden');
+
+                // Valuation Logic Simulation
+                let basePrice = 18000;
+                if (brand === 'Audi' || brand === 'BMW' || brand === 'Mercedes-Benz') basePrice = 26000;
+                if (brand === 'Fiat' || brand === 'Renault') basePrice = 14000;
+
+                const yearFactor = Math.max(0.3, 1 - (2026 - year) * 0.07);
+                const kmFactor = Math.max(0.4, 1 - (km / 300000) * 0.5);
+
+                let finalPrice = Math.round(basePrice * yearFactor * kmFactor);
+
+                if (papiUltraBonusActive) {
+                    finalPrice += 5000;
+                }
+
+                // Reveal Results
+                document.getElementById('result-box').classList.remove('hidden');
+                animateCounter('price-counter', finalPrice);
+
+                // Rating Badge
+                const ratings = [
+                    "100% Approvato da Papi!",
+                    "Super affare garantito!",
+                    "Valutazione top di Papi!",
+                    "Prezzo stellare!"
+                ];
+                document.getElementById('papi-rating').innerText = ratings[Math.floor(Math.random() * ratings.length)];
+
+                triggerConfetti();
+
+                // Update Progress Bar
+                document.getElementById('progress-bar').style.width = '100%';
+                document.getElementById('step2-badge').className = 'w-8 h-8 rounded-full bg-ncaOrange text-black font-black flex items-center justify-center text-sm';
+                document.getElementById('step2-text').className = 'text-sm font-bold text-white';
+
+            }, 2200);
+        }
+
+        // Number Counter Animation
+        function animateCounter(id, targetVal) {
+            let current = 0;
+            const increment = Math.ceil(targetVal / 30);
+            const elem = document.getElementById(id);
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= targetVal) {
+                    current = targetVal;
+                    clearInterval(timer);
+                }
+                elem.innerText = '€ ' + current.toLocaleString('it-IT');
+            }, 30);
+        }
+
+        // Reset Calculator
+        function resetCalculator() {
+            document.getElementById('valuation-form').reset();
+            document.getElementById('result-box').classList.add('hidden');
+            document.getElementById('progress-bar').style.width = '50%';
+            updateKmDisplay(85000);
+        }
+
+        // Avatar Interactive Click
+        function papiAvatarClick() {
+            triggerRandomPapiQuote();
+            triggerConfetti();
+        }
+
+        function triggerRandomPapiQuote() {
+            const quote = papiQuotes[Math.floor(Math.random() * papiQuotes.length)];
+            showVisualQuote(quote);
+            const statuses = ["Energia pura!", "Pronto a comprare!", "Carico a mille!"];
+            document.getElementById('papi-status').innerText = statuses[Math.floor(Math.random() * statuses.length)];
+        }
+
+        // Booking Appointment Logic
+        function bookAppointment() {
+            const name = document.getElementById('user-name').value;
+            const branch = document.getElementById('branch-location').value || "Filiale selezionata";
+            const date = document.getElementById('booking-date').value || "Domani";
+
+            if (!name) return;
+
+            document.getElementById('modal-name').innerText = name;
+            document.getElementById('modal-branch').innerText = branch;
+            document.getElementById('modal-date').innerText = date;
+            document.getElementById('modal-voucher').innerText = 'PAPI-NCA-' + Math.floor(1000 + Math.random() * 9000);
+
+            document.getElementById('booking-modal').classList.remove('hidden');
+            triggerConfetti();
+        }
+
+        function closeBookingModal() {
+            document.getElementById('booking-modal').classList.add('hidden');
+        }
+
+        // Set default appointment date
+        window.onload = function() {
+            updateBranches();
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('booking-date').value = tomorrow.toISOString().split('T')[0];
+        };
+    </script>
+</body>
+</html>
